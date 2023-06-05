@@ -110,6 +110,21 @@ const RootMutationType = new GraphQLObjectType({
         }
       },
     },
+    deleteMoney: {
+      type: MoneyType,
+      args: {
+        src: { type: GraphQLString },
+        tgt: { type: GraphQLString },
+      },
+      resolve: async (_, args) => {
+        try {
+          const { src, tgt } = args;
+          const existingMoney = await Money.deleteOne({ src, tgt });
+        } catch (err) {
+          console.error(err);
+        }
+      },
+    },
   }),
 });
 
