@@ -82,6 +82,34 @@ const RootMutationType = new GraphQLObjectType({
         }
       },
     },
+    updateMoney: {
+      type: MoneyType,
+      args: {
+        src: { type: GraphQLString },
+        tgt: { type: GraphQLString },
+        rate: { type: GraphQLFloat },
+        date: { type: GraphQLString },
+      },
+      resolve: async (_, args) => {
+        try {
+          const { src, tgt, rate, date } = args;
+          const existingMoney = await Money.findOne({ src, tgt });
+
+          if (existingMoney) {
+            existingMoney.rate = rate;
+            existingMoney.date = date;
+            await existingMoney.save();
+            return existingMoney;
+          }
+
+          const money = new Money({ src, tgt, rate, date });
+          await money.save();
+          return money;
+        } catch (err) {
+          console.error(err);
+        }
+      },
+    },
   }),
 });
 
