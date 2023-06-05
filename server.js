@@ -4,6 +4,7 @@ const {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLString,
+  GraphQLFloat,
   GraphQLList,
 } = require("graphql");
 const mongoose = require("mongoose");
@@ -34,7 +35,7 @@ const MoneyType = new GraphQLObjectType({
   fields: () => ({
     src: { type: GraphQLString },
     tgt: { type: GraphQLString },
-    rate: { type: GraphQLString },
+    rate: { type: GraphQLFloat },
     date: { type: GraphQLString },
   }),
 });
@@ -59,9 +60,34 @@ const RootQueryType = new GraphQLObjectType({
     },
   }),
 });
+const RootMutationType = new GraphQLObjectType({
+  name: "Mutation",
+  fields: () => ({
+    createMoney: {
+      type: MoneyType,
+      args: {
+        src: { type: GraphQLString },
+        tgt: { type: GraphQLString },
+        rate: { type: GraphQLFloat },
+        date: { type: GraphQLString },
+      },
+      resolve: async (_, args) => {
+        try {
+          const { src, tgt, rate, date } = args;
+          const money = new Money({ src, tgt, rate, date });
+          await money.save();
+          return money;
+        } catch (err) {
+          console.error(err);
+        }
+      },
+    },
+  }),
+});
 
 const schema = new GraphQLSchema({
   query: RootQueryType,
+  mutation: RootMutationType,
 });
 
 // Express 애플리케이션 설정
