@@ -43,7 +43,8 @@ const MoneyType = new GraphQLObjectType({
 const RootQueryType = new GraphQLObjectType({
   name: "Query",
   fields: () => ({
-    money: {
+    getExchangeRate: {
+      // 환율 조회
       type: new GraphQLList(MoneyType),
       args: {
         src: { type: GraphQLString },
@@ -64,6 +65,7 @@ const RootMutationType = new GraphQLObjectType({
   name: "Mutation",
   fields: () => ({
     createMoney: {
+      // 환율 생성
       type: MoneyType,
       args: {
         src: { type: GraphQLString },
@@ -82,7 +84,8 @@ const RootMutationType = new GraphQLObjectType({
         }
       },
     },
-    updateMoney: {
+    postExchangeRate: {
+      // 환율 업데이트
       type: MoneyType,
       args: {
         src: { type: GraphQLString },
@@ -110,7 +113,8 @@ const RootMutationType = new GraphQLObjectType({
         }
       },
     },
-    deleteMoney: {
+    deleteExchangeRate: {
+      // 환율 삭제
       type: MoneyType,
       args: {
         src: { type: GraphQLString },
@@ -119,7 +123,9 @@ const RootMutationType = new GraphQLObjectType({
       resolve: async (_, args) => {
         try {
           const { src, tgt } = args;
+          const Moneyres = await Money.findOne({ src, tgt });
           const existingMoney = await Money.deleteOne({ src, tgt });
+          return Moneyres;
         } catch (err) {
           console.error(err);
         }
